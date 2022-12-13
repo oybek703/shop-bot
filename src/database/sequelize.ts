@@ -1,4 +1,7 @@
 import { Sequelize } from 'sequelize'
+import { getEnvConfig } from '../config/env.config'
+
+getEnvConfig()
 
 export const sequelize = new Sequelize({
   dialect: 'postgres',
