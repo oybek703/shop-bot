@@ -1,7 +1,5 @@
 import { sequelize } from '../database/sequelize'
 import { DataTypes, Model } from 'sequelize'
-import { Product } from './product'
-import { User } from './user'
 
 export class Order extends Model {
   declare id: number
@@ -22,8 +20,5 @@ Order.init(
     name: DataTypes.STRING,
     is_active: DataTypes.BOOLEAN
   },
-  { sequelize }
+  { sequelize, underscored: true }
 )
-
-Order.belongsTo(Product)
-Order.belongsTo(User)

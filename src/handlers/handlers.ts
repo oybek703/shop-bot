@@ -2,19 +2,12 @@ import { DBManager } from '../database/db-manager'
 import { startMarkup } from '../markups/start.markup'
 import { backButton, startButtons } from '../settings/buttons'
 import { Messages } from '../settings/messages'
-import TelegramBot, { CallbackQuery, ChatId, Message } from 'node-telegram-bot-api'
+import TelegramBot, { Message } from 'node-telegram-bot-api'
 import { backMarkup } from '../markups/back.markup'
 import { selectProductMarkup } from '../markups/select-product.markup'
 
 export class Handlers {
   constructor(private readonly dbManager: DBManager, private readonly bot: TelegramBot) {}
-
-  async setBotCommands() {
-    await this.bot.setMyCommands([
-      { command: 'start', description: 'Start shop bot.' },
-      { command: 'help', description: 'Get help from bot.' }
-    ])
-  }
 
   init = async () => {
     this.bot.on('message', async (message, metadata) => {
@@ -25,7 +18,6 @@ export class Handlers {
         case 'photo':
           return this.bot.deleteMessage(message.chat.id, String(message.message_id))
         case 'sticker':
-          console.log(message)
           return this.bot.sendSticker(message.chat.id, message.sticker?.file_id as string, {
             protect_content: true
           })
@@ -34,10 +26,21 @@ export class Handlers {
     await this.setBotCommands()
   }
 
+  async setBotCommands() {
+    await this.bot.setMyCommands([
+      { command: 'start', description: 'Start shop bot.' },
+      { command: 'help', description: 'Get help from bot.' }
+    ])
+  }
+
+  replyToBotCommands = async (message: Message) => {
+    if (message.text === '/start') return await this.start(message)
+    if (message.text === '/help') return await this.help(message)
+  }
+
   onText = async (message: Message) => {
     const { text } = message
-    if (message.text === '/start') return this.start(message)
-    if (message.text === '/help') return this.help(message)
+    await this.replyToBotCommands(message)
     switch (text) {
       case startButtons.aboutShop:
         return await this.sendInfo(message, Messages.aboutShop)
@@ -76,10 +79,10 @@ export class Handlers {
   }
 
   selectProduct = async (message: Message) => {
-    await this.bot.sendMessage(message.chat.id, 'Select product', {
+    await this.bot.sendMessage(message.chat.id, 'Good step ✅.', {
       reply_markup: { remove_keyboard: true }
     })
-    return this.bot.sendMessage(message.chat.id, 'Product catalog:', {
+    return this.bot.sendMessage(message.chat.id, 'Now select product catalog:', {
       reply_markup: selectProductMarkup
     })
   }

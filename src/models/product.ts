@@ -1,6 +1,7 @@
 import { sequelize } from '../database/sequelize'
 import { DataTypes, Model } from 'sequelize'
 import { Category } from './category'
+import { User } from './user'
 
 export class Product extends Model {
   declare id: number
@@ -26,7 +27,5 @@ Product.init(
     quantity: DataTypes.INTEGER,
     is_active: DataTypes.BOOLEAN
   },
-  { sequelize }
+  { sequelize, underscored: true }
 )
-
-Product.belongsTo(Category)

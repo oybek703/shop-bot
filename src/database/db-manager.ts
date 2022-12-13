@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize'
 import { sequelize } from './sequelize'
+import '../models/assosiations'
 
 export class DBManager {
   public readonly db: Sequelize
@@ -11,7 +12,7 @@ export class DBManager {
   async init() {
     try {
       await this.db.authenticate()
-      await this.db.sync()
+      await this.db.sync({ force: true })
       console.log(`Successfully connected to database!`.blue.underline)
     } catch (e) {
       if (e instanceof Error) {

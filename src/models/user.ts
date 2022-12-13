@@ -1,7 +1,5 @@
 import { sequelize } from '../database/sequelize'
 import { DataTypes, Model } from 'sequelize'
-import { Product } from './product'
-import { Order } from './order'
 
 export class User extends Model {
   declare id: number
@@ -29,8 +27,5 @@ User.init(
     },
     is_active: DataTypes.BOOLEAN
   },
-  { sequelize }
+  { sequelize, underscored: true }
 )
-
-User.hasMany(Product)
-User.hasMany(Order)

@@ -1,6 +1,5 @@
 import { sequelize } from '../database/sequelize'
 import { DataTypes, Model } from 'sequelize'
-import { Product } from './product'
 
 export class Category extends Model {
   declare id: number
@@ -19,7 +18,5 @@ Category.init(
     name: DataTypes.STRING,
     is_active: DataTypes.BOOLEAN
   },
-  { sequelize }
+  { sequelize, underscored: true }
 )
-
-Category.hasMany(Product)
