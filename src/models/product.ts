@@ -1,7 +1,5 @@
 import { sequelize } from '../database/sequelize'
 import { DataTypes, Model } from 'sequelize'
-import { Category } from './category'
-import { User } from './user'
 
 export class Product extends Model {
   declare id: number
@@ -9,7 +7,8 @@ export class Product extends Model {
   declare title: string
   declare price: number
   declare quantity: number
-  declare category_id: number
+  declare CategoryId: number
+  declare UserId: number
   declare is_active: boolean
 }
 

@@ -1,5 +1,5 @@
 export const startButtons = {
-  selectProduct: '🛍 Select product',
+  selectProduct: '🗃 Select goods',
   aboutShop: 'ℹ About shop bot',
   settings: '⚙ Settings'
 }
@@ -9,9 +9,9 @@ export const backButton = {
 }
 
 export const selectProductButtons = {
-  fastFood: '🍔 Fast-food',
+  'semi-finished': '🍕 Semi finished',
   breads: '🍞 Breads',
-  iceCream: '🍦 Ice-cream',
+  'ice-creams': '🍦 Ice-cream',
   back: backButton.back,
   checkout: '☑ Order'
 }

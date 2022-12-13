@@ -17,7 +17,10 @@ User.init(
       autoIncrement: true,
       unique: true
     },
-    username: DataTypes.STRING,
+    username: {
+      type: DataTypes.STRING,
+      unique: true
+    },
     first_name: {
       type: DataTypes.STRING,
       allowNull: false

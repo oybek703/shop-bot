@@ -3,11 +3,8 @@ import { ReplyKeyboardMarkup } from 'node-telegram-bot-api'
 
 export const selectProductMarkup: ReplyKeyboardMarkup = {
   keyboard: [
-    [
-      { text: selectProductButtons.fastFood },
-      { text: selectProductButtons.breads },
-      { text: selectProductButtons.iceCream }
-    ],
+    [{ text: selectProductButtons['semi-finished'] }],
+    [{ text: selectProductButtons.breads }, { text: selectProductButtons['ice-creams'] }],
     [{ text: selectProductButtons.back }, { text: selectProductButtons.checkout }]
   ],
   resize_keyboard: true

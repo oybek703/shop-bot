@@ -12,7 +12,7 @@ export class DBManager {
   async init() {
     try {
       await this.db.authenticate()
-      await this.db.sync({ force: true })
+      await this.db.sync()
       console.log(`Successfully connected to database!`.blue.underline)
     } catch (e) {
       if (e instanceof Error) {

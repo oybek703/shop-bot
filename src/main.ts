@@ -1,5 +1,5 @@
 import 'colors'
-import { ShopBot } from './shop-bot'
+import { ShopBot } from './bot/shop-bot'
 import { getEnvConfig } from './config/env.config'
 import { Handlers } from './handlers/handlers'
 import { DBManager } from './database/db-manager'
@@ -10,7 +10,7 @@ async function start() {
   await dbManager.init()
   const shopBot = new ShopBot(`${process.env.BOT_TOKEN}`)
   await shopBot.start()
-  const handler = new Handlers(dbManager, shopBot.bot)
+  const handler = new Handlers(dbManager, shopBot.bot, shopBot.commands)
   await handler.init()
 }
 

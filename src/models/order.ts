@@ -4,8 +4,8 @@ import { DataTypes, Model } from 'sequelize'
 export class Order extends Model {
   declare id: number
   declare quantity: number
-  declare product_id: number
-  declare user_id: number
+  declare ProductId: number
+  declare UserId: number
   declare is_active: boolean
 }
 

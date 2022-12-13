@@ -1,13 +1,26 @@
 import { DBManager } from '../database/db-manager'
 import { startMarkup } from '../markups/start.markup'
-import { backButton, startButtons } from '../settings/buttons'
+import { backButton, selectProductButtons, startButtons } from '../settings/buttons'
 import { Messages } from '../settings/messages'
-import TelegramBot, { Message } from 'node-telegram-bot-api'
+import TelegramBot, {
+  BotCommand,
+  InlineKeyboardButton,
+  InlineKeyboardMarkup,
+  KeyboardButton,
+  Message
+} from 'node-telegram-bot-api'
 import { backMarkup } from '../markups/back.markup'
 import { selectProductMarkup } from '../markups/select-product.markup'
+import { ShopBot } from '../bot/shop-bot'
+import { Category } from '../models/category'
+import { Product } from '../models/product'
 
 export class Handlers {
-  constructor(private readonly dbManager: DBManager, private readonly bot: TelegramBot) {}
+  constructor(
+    private readonly dbManager: DBManager,
+    private readonly bot: TelegramBot,
+    private readonly commands?: BotCommand[]
+  ) {}
 
   init = async () => {
     this.bot.on('message', async (message, metadata) => {
@@ -23,14 +36,11 @@ export class Handlers {
           })
       }
     })
-    await this.setBotCommands()
+    return await this.setBotCommands()
   }
 
   async setBotCommands() {
-    await this.bot.setMyCommands([
-      { command: 'start', description: 'Start shop bot.' },
-      { command: 'help', description: 'Get help from bot.' }
-    ])
+    if (this.commands) return await this.bot.setMyCommands(this.commands)
   }
 
   replyToBotCommands = async (message: Message) => {
@@ -40,7 +50,10 @@ export class Handlers {
 
   onText = async (message: Message) => {
     const { text } = message
-    await this.replyToBotCommands(message)
+    const commandTexts = this.commands?.map(({ command }) => `/${command}`)
+    if (text && commandTexts?.includes(text)) {
+      return await this.replyToBotCommands(message)
+    }
     switch (text) {
       case startButtons.aboutShop:
         return await this.sendInfo(message, Messages.aboutShop)
@@ -50,7 +63,14 @@ export class Handlers {
         return await this.selectProduct(message)
       case backButton.back:
         return await this.start(message)
+      case selectProductButtons['semi-finished']:
+        return this.getProducts(message, 'semi-finished')
+      case selectProductButtons.breads:
+        return this.getProducts(message, 'breads')
+      case selectProductButtons['ice-creams']:
+        return this.getProducts(message, 'ice-creams')
       default:
+        console.log(text)
         return this.bot.sendMessage(
           message.chat.id,
           'Invalid command. Please choose any existing option.'
@@ -85,5 +105,26 @@ export class Handlers {
     return this.bot.sendMessage(message.chat.id, 'Now select product catalog:', {
       reply_markup: selectProductMarkup
     })
+  }
+
+  getProducts = async (message: Message, categoryName: keyof typeof selectProductButtons) => {
+    const category = await Category.findOne({ where: { name: categoryName } })
+    const goods: Product[] = await Product.findAll({ where: { CategoryId: category?.id } })
+    const mappedGoods: InlineKeyboardButton[][] = goods.map(({ id, title }) => [
+      {
+        text: title,
+        callback_data: id.toString()
+      }
+    ])
+    return this.bot.sendMessage(
+      message.chat.id,
+      `Category: ${selectProductButtons[categoryName]}`,
+      {
+        reply_markup: {
+          inline_keyboard: mappedGoods,
+          resize_keyboard: true
+        }
+      }
+    )
   }
 }
