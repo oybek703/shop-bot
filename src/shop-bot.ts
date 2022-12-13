@@ -1,17 +1,16 @@
 import 'colors'
-import { Telegraf } from 'telegraf'
+import TelegramBot from 'node-telegram-bot-api'
 
 export class ShopBot {
-  readonly bot: Telegraf
+  bot: TelegramBot
 
-  constructor(private readonly token: string) {
-    this.bot = new Telegraf(this.token)
-  }
+  constructor(private readonly token: string) {}
 
   async start() {
     try {
-      await this.bot.launch()
+      this.bot = new TelegramBot(this.token, { polling: true })
       console.log(`Bot started successfully!`.yellow.underline.bold)
+      return { bot: this.bot }
     } catch (e: unknown) {
       if (e instanceof Error) {
         console.error(`Error while launching bot: ${e.message}`.red.underline.bold)
