@@ -3,6 +3,7 @@ import { startMarkup } from '../markups/start.markup'
 import { startButtons } from '../settings/buttons'
 import { Messages } from '../settings/messages'
 import TelegramBot, { CallbackQuery, ChatId, Message } from 'node-telegram-bot-api'
+import { backMarkup } from '../markups/back.markup'
 
 export class Handlers {
   constructor(private readonly dbManager: DBManager, private readonly bot: TelegramBot) {}
@@ -22,13 +23,28 @@ export class Handlers {
     ])
   }
 
+  onCallBackQuery = async (query: CallbackQuery) => {
+    const chatId = query.message?.chat.id as ChatId
+    const { data } = query
+    switch (data) {
+      case 'backToStart':
+        return await this.start({ ...query.message, from: query.from } as Message)
+    }
+    return await this.bot.sendMessage(chatId, JSON.stringify(query.message, null, 2))
+  }
+
   onText = async (message: Message) => {
     const { text } = message
     if (message.text === '/start') return this.start(message)
+    if (message.text === '/help') return this.help(message)
     if (text === startButtons.aboutShop) return this.aboutShop(message)
     switch (text) {
       case startButtons.aboutShop:
         return this.aboutShop(message)
+      case startButtons.settings:
+        return this.settings(message)
+      case startButtons.selectProduct:
+        return this.selectProduct(message)
       default:
         return this.bot.sendMessage(message.chat.id, JSON.stringify(message.from, null, 2))
     }
@@ -47,22 +63,24 @@ export class Handlers {
     await this.bot.sendMessage(id, 'Shop bot 🤖 will help you buy products online🙂')
   }
 
-  onCallBackQuery = async (query: CallbackQuery) => {
-    const chatId = query.message?.chat.id as ChatId
-    const { data } = query
-    switch (data) {
-      case 'backToStart':
-        return await this.start(query.message as Message)
-    }
-    return await this.bot.sendMessage(chatId, JSON.stringify(query.message, null, 2))
-  }
-
   aboutShop = async (message: Message) => {
     return this.bot.sendMessage(message.chat.id, Messages.aboutShop, {
       parse_mode: 'HTML',
-      reply_markup: {
-        inline_keyboard: [[{ text: '⏮', callback_data: 'backToStart' }]]
-      }
+      reply_markup: backMarkup
+    })
+  }
+
+  settings = async (message: Message) => {
+    return this.bot.sendMessage(message.chat.id, Messages.settings, {
+      parse_mode: 'HTML',
+      reply_markup: backMarkup
+    })
+  }
+
+  selectProduct = async (message: Message) => {
+    return this.bot.sendMessage(message.chat.id, Messages.selectProduct, {
+      parse_mode: 'HTML',
+      reply_markup: backMarkup
     })
   }
 }
