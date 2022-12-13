@@ -38,12 +38,7 @@ const settings = `
 -<b>developer: - <a href="http://t.me/webnode703">Yoriqulov</a> </b><i>(🙋)</i>
 `
 
-const selectProduct = `
-SELECT PRODUCT HTML CODE
-`
-
 export const Messages = {
   aboutShop,
-  settings,
-  selectProduct
+  settings
 }

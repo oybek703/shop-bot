@@ -1,12 +1,20 @@
 import { DBManager } from '../database/db-manager'
 import { startMarkup } from '../markups/start.markup'
-import { startButtons } from '../settings/buttons'
+import { backButton, startButtons } from '../settings/buttons'
 import { Messages } from '../settings/messages'
 import TelegramBot, { CallbackQuery, ChatId, Message } from 'node-telegram-bot-api'
 import { backMarkup } from '../markups/back.markup'
+import { selectProductMarkup } from '../markups/select-product.markup'
 
 export class Handlers {
   constructor(private readonly dbManager: DBManager, private readonly bot: TelegramBot) {}
+
+  async setBotCommands() {
+    await this.bot.setMyCommands([
+      { command: 'start', description: 'Start shop bot.' },
+      { command: 'help', description: 'Get help from bot.' }
+    ])
+  }
 
   init = async () => {
     this.bot.on('message', async (message, metadata) => {
@@ -14,39 +22,36 @@ export class Handlers {
       switch (type) {
         case 'text':
           return await this.onText(message)
+        case 'photo':
+          return this.bot.deleteMessage(message.chat.id, String(message.message_id))
+        case 'sticker':
+          console.log(message)
+          return this.bot.sendSticker(message.chat.id, message.sticker?.file_id as string, {
+            protect_content: true
+          })
       }
     })
-    this.bot.on('callback_query', this.onCallBackQuery)
-    await this.bot.setMyCommands([
-      { command: 'start', description: 'Start shop bot.' },
-      { command: 'help', description: 'Get help from bot.' }
-    ])
-  }
-
-  onCallBackQuery = async (query: CallbackQuery) => {
-    const chatId = query.message?.chat.id as ChatId
-    const { data } = query
-    switch (data) {
-      case 'backToStart':
-        return await this.start({ ...query.message, from: query.from } as Message)
-    }
-    return await this.bot.sendMessage(chatId, JSON.stringify(query.message, null, 2))
+    await this.setBotCommands()
   }
 
   onText = async (message: Message) => {
     const { text } = message
     if (message.text === '/start') return this.start(message)
     if (message.text === '/help') return this.help(message)
-    if (text === startButtons.aboutShop) return this.aboutShop(message)
     switch (text) {
       case startButtons.aboutShop:
-        return this.aboutShop(message)
+        return await this.sendInfo(message, Messages.aboutShop)
       case startButtons.settings:
-        return this.settings(message)
+        return await this.sendInfo(message, Messages.settings)
       case startButtons.selectProduct:
-        return this.selectProduct(message)
+        return await this.selectProduct(message)
+      case backButton.back:
+        return await this.start(message)
       default:
-        return this.bot.sendMessage(message.chat.id, JSON.stringify(message.from, null, 2))
+        return this.bot.sendMessage(
+          message.chat.id,
+          'Invalid command. Please choose any existing option.'
+        )
     }
   }
 
@@ -63,24 +68,19 @@ export class Handlers {
     await this.bot.sendMessage(id, 'Shop bot 🤖 will help you buy products online🙂')
   }
 
-  aboutShop = async (message: Message) => {
-    return this.bot.sendMessage(message.chat.id, Messages.aboutShop, {
-      parse_mode: 'HTML',
-      reply_markup: backMarkup
-    })
-  }
-
-  settings = async (message: Message) => {
-    return this.bot.sendMessage(message.chat.id, Messages.settings, {
+  sendInfo = async (message: Message, data: string) => {
+    return this.bot.sendMessage(message.chat.id, data, {
       parse_mode: 'HTML',
       reply_markup: backMarkup
     })
   }
 
   selectProduct = async (message: Message) => {
-    return this.bot.sendMessage(message.chat.id, Messages.selectProduct, {
-      parse_mode: 'HTML',
-      reply_markup: backMarkup
+    await this.bot.sendMessage(message.chat.id, 'Select product', {
+      reply_markup: { remove_keyboard: true }
+    })
+    return this.bot.sendMessage(message.chat.id, 'Product catalog:', {
+      reply_markup: selectProductMarkup
     })
   }
 }
