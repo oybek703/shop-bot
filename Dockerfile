@@ -4,4 +4,4 @@ ADD package*.json ./
 RUN npm install
 ADD . .
 RUN npm run build
-CMD ["node", "dist/main.js"]
+CMD ["node", "./dist/main.js"]
