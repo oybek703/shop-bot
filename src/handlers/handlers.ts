@@ -70,7 +70,6 @@ export class Handlers {
       case selectProductButtons['ice-creams']:
         return this.getProducts(message, 'ice-creams')
       default:
-        console.log(text)
         return this.bot.sendMessage(
           message.chat.id,
           'Invalid command. Please choose any existing option.'
