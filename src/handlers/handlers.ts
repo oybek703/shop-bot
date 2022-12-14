@@ -98,10 +98,13 @@ export class Handlers {
   }
 
   selectProduct = async (message: Message) => {
-    await this.bot.sendMessage(message.chat.id, 'Good step ✅.', {
+    const { message_id } = await this.bot.sendMessage(message.chat.id, 'Please wait...', {
       reply_markup: { remove_keyboard: true }
     })
-    return this.bot.sendMessage(message.chat.id, 'Now select product catalog:', {
+    await this.bot.deleteMessage(message.chat.id, String(message_id), {
+      reply_markup: { remove_keyboard: true }
+    })
+    return this.bot.sendMessage(message.chat.id, 'Select product catalog:', {
       reply_markup: selectProductMarkup
     })
   }
